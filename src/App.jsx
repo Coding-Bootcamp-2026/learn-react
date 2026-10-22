@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router";
 import Navbar from "./components/Navbar";
 import HomePage from "./pages/HomePage";
+import PostDetailPage from "./pages/PostDetailPage";
 
 export default function App() {
 
@@ -11,6 +12,7 @@ export default function App() {
       <main className="mx-auto max-w-3xl px-4 py-8">
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/posts/:id" element={<PostDetailPage />} />
 
           <Route path="*" element={
             <p className="text-center text-gray-500">
