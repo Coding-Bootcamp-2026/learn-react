@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import { apiFetch } from "../api";
+import { useAuth } from "../context/AuthContext";
 
 export default function PostDetailPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -24,6 +27,19 @@ export default function PostDetailPage() {
     fetchPost();
   }, [id]);
 
+  async function handleDelete() {
+    if (!confirm('Yakin ingin menghapus post ini?')) return;
+
+    try {
+      await apiFetch(`/posts/${id}`, {
+        method: 'DELETE',
+      })
+      navigate('/');
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+
   if (loading) return (
     <div className="flex items-center justify-center">
       <svg class="animate-spin" width="24" height="24" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -38,6 +54,8 @@ export default function PostDetailPage() {
       <p className="rounded-md bg-red-100 px-4 py-3 text-red-800">{error}</p>
     );
   }
+
+  const isOwner = user && user.id === post.user_id;
 
   return (
     <article className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
@@ -55,6 +73,23 @@ export default function PostDetailPage() {
       <p className="mt-6 leading-relaxed whitespace-pre-line">
         {post.body}
       </p>
+
+      {isOwner && (
+        <div className="mt-8 flex gap-2 border-t border-gray-200 pt-4">
+          <Link
+            to={`/posts/${post.id}/edit`}
+            className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+          >
+            Edit
+          </Link>
+          <button
+            onClick={handleDelete}
+            className="rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+          >
+            Hapus
+          </button>
+        </div>
+      )}
     </article>
   );
 }
